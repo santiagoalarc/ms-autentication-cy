@@ -1,0 +1,9 @@
+package co.com.crediya.enums;
+
+public enum UserErrorEnum {
+
+    PAYLOAD_NOT_CONTAIN_MINIMUM_FIELDS,
+    EMAIL_ALREADY_REGISTERED,
+    INVALID_EMAIL_FORMAT,
+    INVALID_BASE_SALARY_FORMAT
+}
