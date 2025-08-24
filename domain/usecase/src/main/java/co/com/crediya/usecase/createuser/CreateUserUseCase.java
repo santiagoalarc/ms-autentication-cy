@@ -8,23 +8,24 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
-//El sistema debe validar que el correo_electronico proporcionado no esté previamente registrado por otro solicitante.
-//El sistema debe validar el formato correcto de los datos, como por ejemplo, que el salario_base sea un valor numérico (este entre 0 y 15_000_000) y el correo_electronico tenga un formato de email válido.
-//Una vez registrado exitosamente, la información del solicitante debe quedar guardada permanentemente en la base de datos.
 
 @RequiredArgsConstructor
 public class CreateUserUseCase {
 
     private final UserRepository userRepository;
 
+    private final Logger log = Logger.getLogger(CreateUserUseCase.class.getName());
+
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     public Mono<User> saveUser(User user){
+
+        log.log(Level.INFO,"CreateUserUseCase - user {}", user);
 
         return Mono.just(user)
                 .filter(this::validateData)
@@ -40,7 +41,8 @@ public class CreateUserUseCase {
                 .map(userData -> userData.toBuilder()
                         .id(UUID.randomUUID().toString())
                         .build())
-                .flatMap(userRepository::saveUser);
+                .flatMap(userRepository::saveUser)
+                .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()));
     }
 
     Boolean validateData(User user){
@@ -64,11 +66,7 @@ public class CreateUserUseCase {
     Boolean validateBaseSalary(User user) {
         try {
             double salary = Double.parseDouble(user.getBaseSalary());
-            if (salary >= 0 && salary <= 15000000) {
-                return true;
-            } else {
-                return false;
-            }
+            return salary >= 0 && salary <= 15000000;
         } catch (NumberFormatException e) {
             return false;
         }
