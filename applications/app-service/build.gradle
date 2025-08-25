@@ -1,10 +1,10 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
+	implementation project(':reactive-web')
+	implementation project(':r2dbc-postgresql')
 	testImplementation 'org.springframework:spring-web'
-	implementation project(':api-rest')
 	implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
-	implementation project(':jpa-repository')
     implementation project(':model')
     implementation project(':usecase')
     implementation 'org.springframework.boot:spring-boot-starter'

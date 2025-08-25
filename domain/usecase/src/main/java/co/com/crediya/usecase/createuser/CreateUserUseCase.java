@@ -40,6 +40,7 @@ public class CreateUserUseCase {
                         .thenReturn(userData))
                 .map(userData -> userData.toBuilder()
                         .id(UUID.randomUUID().toString())
+                        .idRol(1)
                         .build())
                 .flatMap(userRepository::saveUser)
                 .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()));

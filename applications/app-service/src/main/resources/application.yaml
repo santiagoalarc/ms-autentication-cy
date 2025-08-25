@@ -5,23 +5,15 @@ spring:
     name: "MSAuthentication"
   devtools:
     add-properties: false
-  #h2:
-  #  console:
-  #    enabled: true
-  #    path: "/h2"
   profiles:
     include: null
-  datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
-    driverClassName: "org.postgresql.Driver"
-  jpa:
-    hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-    database: "POSTGRESQL"
-    databasePlatform: org.hibernate.dialect.PostgreSQLDialect
+  #r2dbc:
+  #  schema:
+  #    create-mode: "always"
+  #    locations: "classpath:schema.sql"
+  sql:
+    init:
+      mode: "always"
 management:
   endpoints:
     web:
@@ -33,3 +25,17 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+routes:
+  paths:
+    users: "/api/v1/usuarios"
+    userById: "/api/v1/usuario/{id}"
+
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 5432
+    database: "postgres"
+    schema: "public"
+    username: "postgres"
+    password: "postgres"

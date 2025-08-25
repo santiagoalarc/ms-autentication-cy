@@ -19,6 +19,6 @@ public class User {
     private String address;
     private String documentIdentification;
     private String phoneNumber;
-    private String idRol;
+    private Integer idRol;
     private String baseSalary;
 }
