@@ -1,4 +1,4 @@
-package co.com.crediya.usecase.createuser;
+package co.com.crediya.usecase.command.createuser;
 
 import co.com.crediya.enums.UserErrorEnum;
 import co.com.crediya.exceptions.UserException;
@@ -51,7 +51,8 @@ public class CreateUserUseCase {
         return notNullAndNotEmpty(user.getName())
                 && notNullAndNotEmpty(user.getLastName())
                 && notNullAndNotEmpty(user.getEmail())
-                && notNullAndNotEmpty(user.getBaseSalary());
+                && notNullAndNotEmpty(user.getBaseSalary())
+                && notNullAndNotEmpty(user.getDocumentIdentification());
     }
 
     Boolean validateEmail(User user){

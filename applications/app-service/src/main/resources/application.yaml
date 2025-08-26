@@ -30,6 +30,7 @@ routes:
   paths:
     users: "/api/v1/usuarios"
     userById: "/api/v1/usuario/{id}"
+    userByDocId: "/api/v1/usuario/{docId}"
 
 adapters:
   r2dbc:

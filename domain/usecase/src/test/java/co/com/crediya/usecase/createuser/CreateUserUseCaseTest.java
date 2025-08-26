@@ -4,6 +4,7 @@ import co.com.crediya.enums.UserErrorEnum;
 import co.com.crediya.exceptions.UserException;
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.gateways.UserRepository;
+import co.com.crediya.usecase.command.createuser.CreateUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
