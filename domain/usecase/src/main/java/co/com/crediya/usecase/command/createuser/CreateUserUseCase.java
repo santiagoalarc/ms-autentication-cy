@@ -21,6 +21,7 @@ public class CreateUserUseCase {
     private final Logger log = Logger.getLogger(CreateUserUseCase.class.getName());
 
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+    private static final int ONE = 1;
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     public Mono<User> saveUser(User user){
@@ -40,7 +41,7 @@ public class CreateUserUseCase {
                         .thenReturn(userData))
                 .map(userData -> userData.toBuilder()
                         .id(UUID.randomUUID().toString())
-                        .idRol(1)
+                        .idRol(ONE)
                         .build())
                 .flatMap(userRepository::saveUser)
                 .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()));
