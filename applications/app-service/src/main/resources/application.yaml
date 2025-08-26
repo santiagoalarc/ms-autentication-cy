@@ -40,3 +40,22 @@ adapters:
     schema: "public"
     username: "postgres"
     password: "postgres"
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+  info:
+    title: "MS Authentication API"
+    description: "Microservicio de autenticación y gestión de usuarios"
+    version: "1.0.0"
+    contact:
+      name: "Crediya Team"
+      email: "team@crediya.com"
+  servers:
+    - url: http://localhost:8080
+      description: Local development server
