@@ -32,12 +32,17 @@ public class CreateUserUseCase {
                         .filter(emailExist -> !emailExist)
                         .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.EMAIL_ALREADY_REGISTERED))))
                         .thenReturn(userData))
+                .flatMap(userData -> userRepository.existsByDocumentId(userData)
+                        .filter(dni -> !dni)
+                        .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.DOCUMENT_IDENTIFICATION_ALREADY_REGISTERED))))
+                        .thenReturn(userData))
                 .map(userData -> userData.toBuilder()
                         .id(UUID.randomUUID().toString())
                         .idRol(RolEnum.USER.getId())
                         .build())
                 .flatMap(userRepository::saveUser)
-                .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()));
+                .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()))
+                .doOnSuccess(userCreated -> log.info("CREATE USER SUCCESSFUL :: id- " + userCreated.getId()));
     }
 
     Boolean validateData(User user){
