@@ -41,6 +41,19 @@ class CreateUserUseCaseTest {
     }
 
     @Test
+    void saveUser_happyPAth() {
+
+        when(userRepository.existsByEmail(any(User.class))).thenReturn(Mono.just(false));
+
+        when(userRepository.saveUser(any(User.class))).thenReturn(Mono.just(validUser));
+
+        StepVerifier.create(createUserUseCase.saveUser(validUser))
+                .expectNextMatches(user -> user.getName() != null && user.getName().equals(validUser.getName()))
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
     @DisplayName("Should throw an exception when required fields are missing")
     void saveUser_missingRequiredFields_throwsException() {
         User invalidUser = validUser.toBuilder().name(null).build();
@@ -99,5 +112,4 @@ class CreateUserUseCaseTest {
                                 ((UserException) throwable).getErrorEnum() == UserErrorEnum.EMAIL_ALREADY_REGISTERED)
                 .verify();
     }
-
 }
