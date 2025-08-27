@@ -1,5 +1,6 @@
 package co.com.crediya.usecase.command.createuser;
 
+import co.com.crediya.enums.RolEnum;
 import co.com.crediya.enums.UserErrorEnum;
 import co.com.crediya.exceptions.UserException;
 import co.com.crediya.model.user.User;
@@ -10,8 +11,6 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 public class CreateUserUseCase {
@@ -20,9 +19,6 @@ public class CreateUserUseCase {
 
     private final Logger log = Logger.getLogger(CreateUserUseCase.class.getName());
 
-    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
-
     public Mono<User> saveUser(User user){
 
         log.log(Level.INFO,"CreateUserUseCase - user {}", user);
@@ -30,20 +26,23 @@ public class CreateUserUseCase {
         return Mono.just(user)
                 .filter(this::validateData)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.PAYLOAD_NOT_CONTAIN_MINIMUM_FIELDS))))
-                .filter(this::validateEmail)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.INVALID_EMAIL_FORMAT))))
                 .filter(this::validateBaseSalary)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.INVALID_BASE_SALARY_FORMAT))))
                 .flatMap(userData -> userRepository.existsByEmail(userData)
                         .filter(emailExist -> !emailExist)
                         .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.EMAIL_ALREADY_REGISTERED))))
                         .thenReturn(userData))
+                .flatMap(userData -> userRepository.existsByDocumentId(userData)
+                        .filter(dni -> !dni)
+                        .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.DOCUMENT_IDENTIFICATION_ALREADY_REGISTERED))))
+                        .thenReturn(userData))
                 .map(userData -> userData.toBuilder()
                         .id(UUID.randomUUID().toString())
-                        .idRol(1)
+                        .idRol(RolEnum.USER.getId())
                         .build())
                 .flatMap(userRepository::saveUser)
-                .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()));
+                .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()))
+                .doOnSuccess(userCreated -> log.info("CREATE USER SUCCESSFUL :: id- " + userCreated.getId()));
     }
 
     Boolean validateData(User user){
@@ -53,12 +52,6 @@ public class CreateUserUseCase {
                 && notNullAndNotEmpty(user.getEmail())
                 && notNullAndNotEmpty(user.getBaseSalary())
                 && notNullAndNotEmpty(user.getDocumentIdentification());
-    }
-
-    Boolean validateEmail(User user){
-
-            Matcher matcher = EMAIL_PATTERN.matcher(user.getEmail());
-            return matcher.matches();
     }
 
     Boolean notNullAndNotEmpty(String value){

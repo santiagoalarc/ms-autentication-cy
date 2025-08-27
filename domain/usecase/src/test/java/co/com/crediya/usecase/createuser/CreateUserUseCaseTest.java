@@ -6,16 +6,19 @@ import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.usecase.command.createuser.CreateUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class CreateUserUseCaseTest {
 
     @Mock
@@ -28,104 +31,73 @@ class CreateUserUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
         validUser = User.builder()
                 .name("John")
                 .lastName("Doe")
                 .email("john.doe@example.com")
                 .baseSalary("1500000")
+                .documentIdentification("123456789")
                 .build();
     }
 
     @Test
-    void shouldSaveUserSuccessfully() {
+    void saveUser_happyPAth() {
 
         when(userRepository.existsByEmail(any(User.class))).thenReturn(Mono.just(false));
+
         when(userRepository.saveUser(any(User.class))).thenReturn(Mono.just(validUser));
 
         StepVerifier.create(createUserUseCase.saveUser(validUser))
-                .expectNextMatches(user -> user.getName().equals("John"))
-                .verifyComplete();
-    }
-
-    @Test
-    void shouldThrowErrorWhenRequiredFieldsAreMissing() {
-
-        User invalidUser = User.builder()
-                .name(null)
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .baseSalary("1500000")
-                .build();
-
-        StepVerifier.create(createUserUseCase.saveUser(invalidUser))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof UserException &&
-                                ((UserException) throwable).getError() == UserErrorEnum.PAYLOAD_NOT_CONTAIN_MINIMUM_FIELDS)
+                .expectNextMatches(user -> user.getName() != null && user.getName().equals(validUser.getName()))
+                .expectComplete()
                 .verify();
     }
 
     @Test
-    void shouldThrowErrorWhenEmailFormatIsInvalid() {
-
-        User invalidUser = User.builder()
-                .name("John")
-                .lastName("Doe")
-                .email("invalid-email")
-                .baseSalary("1500000")
-                .build();
+    @DisplayName("Should throw an exception when required fields are missing")
+    void saveUser_missingRequiredFields_throwsException() {
+        User invalidUser = validUser.toBuilder().name(null).build();
 
         StepVerifier.create(createUserUseCase.saveUser(invalidUser))
                 .expectErrorMatches(throwable ->
                         throwable instanceof UserException &&
-                                ((UserException) throwable).getError() == UserErrorEnum.INVALID_EMAIL_FORMAT)
+                                ((UserException) throwable).getErrorEnum() == UserErrorEnum.PAYLOAD_NOT_CONTAIN_MINIMUM_FIELDS)
                 .verify();
     }
 
     @Test
-    void shouldThrowErrorWhenBaseSalaryIsNotNumeric() {
-
-        User invalidUser = User.builder()
-                .name("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .baseSalary("not-a-number")
-                .build();
+    @DisplayName("Should throw an exception when the base salary is not numeric")
+    void saveUser_baseSalaryNotNumeric_throwsException() {
+        User invalidUser = validUser.toBuilder().baseSalary("not-a-number").build();
 
         StepVerifier.create(createUserUseCase.saveUser(invalidUser))
                 .expectErrorMatches(throwable ->
                         throwable instanceof UserException &&
-                                ((UserException) throwable).getError() == UserErrorEnum.INVALID_BASE_SALARY_FORMAT)
+                                ((UserException) throwable).getErrorEnum() == UserErrorEnum.INVALID_BASE_SALARY_FORMAT)
                 .verify();
     }
 
     @Test
-    void shouldThrowErrorWhenBaseSalaryIsOutOfRange() {
-
-        User invalidUser = User.builder()
-                .name("John")
-                .lastName("Doe")
-                .email("john.doe@example.com")
-                .baseSalary("20000000")
-                .build();
+    @DisplayName("Should throw an exception when the base salary is out of range")
+    void saveUser_baseSalaryOutOfRange_throwsException() {
+        User invalidUser = validUser.toBuilder().baseSalary("20000000").build();
 
         StepVerifier.create(createUserUseCase.saveUser(invalidUser))
                 .expectErrorMatches(throwable ->
                         throwable instanceof UserException &&
-                                ((UserException) throwable).getError() == UserErrorEnum.INVALID_BASE_SALARY_FORMAT)
+                                ((UserException) throwable).getErrorEnum() == UserErrorEnum.INVALID_BASE_SALARY_FORMAT)
                 .verify();
     }
 
     @Test
-    void shouldThrowErrorWhenEmailAlreadyExists() {
-
+    @DisplayName("Should throw an exception when the email is already registered")
+    void saveUser_emailAlreadyExists_throwsException() {
         when(userRepository.existsByEmail(any(User.class))).thenReturn(Mono.just(true));
 
         StepVerifier.create(createUserUseCase.saveUser(validUser))
                 .expectErrorMatches(throwable ->
                         throwable instanceof UserException &&
-                                ((UserException) throwable).getError() == UserErrorEnum.EMAIL_ALREADY_REGISTERED)
+                                ((UserException) throwable).getErrorEnum() == UserErrorEnum.EMAIL_ALREADY_REGISTERED)
                 .verify();
     }
 }

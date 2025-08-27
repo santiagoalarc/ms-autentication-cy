@@ -1,5 +1,6 @@
 package co.com.crediya.api;
 
+import co.com.crediya.api.config.BaseValidator;
 import co.com.crediya.api.dto.CreateUserDto;
 import co.com.crediya.api.mapper.UserDtoMapper;
 import co.com.crediya.usecase.command.createuser.CreateUserUseCase;
@@ -22,6 +23,7 @@ public class Handler {
     public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
 
         return serverRequest.bodyToMono(CreateUserDto.class)
+                .doOnNext(user -> BaseValidator.validate(user, "PAYLOAD_NOT_CONTAIN_MINIMUM_FIELDS"))
                 .map(userDtoMapper::toModel)
                 .flatMap(createUserUseCase::saveUser)
                 .flatMap(savedUser -> ServerResponse.ok()

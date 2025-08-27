@@ -14,4 +14,8 @@ public class UserException extends RuntimeException{
     public UserErrorEnum getError() {
         return error;
     }
+
+    public UserErrorEnum getErrorEnum() {
+        return error;
+    }
 }
