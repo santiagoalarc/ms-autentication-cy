@@ -66,18 +66,6 @@ class CreateUserUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should throw an exception for invalid email format")
-    void saveUser_invalidEmailFormat_throwsException() {
-        User invalidUser = validUser.toBuilder().email("invalid-email").build();
-
-        StepVerifier.create(createUserUseCase.saveUser(invalidUser))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof UserException &&
-                                ((UserException) throwable).getErrorEnum() == UserErrorEnum.INVALID_EMAIL_FORMAT)
-                .verify();
-    }
-
-    @Test
     @DisplayName("Should throw an exception when the base salary is not numeric")
     void saveUser_baseSalaryNotNumeric_throwsException() {
         User invalidUser = validUser.toBuilder().baseSalary("not-a-number").build();
