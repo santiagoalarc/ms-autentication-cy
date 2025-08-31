@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS user_entity (
     last_name VARCHAR(255),
     birth_date BIGINT,
     email VARCHAR(255),
+    password VARCHAR(255),
     address VARCHAR(255),
     document_identification VARCHAR(255),
     phone_number VARCHAR(255),
