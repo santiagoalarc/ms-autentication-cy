@@ -26,6 +26,7 @@ public class Handler {
                 .doOnNext(user -> BaseValidator.validate(user, "PAYLOAD_NOT_CONTAIN_MINIMUM_FIELDS"))
                 .map(userDtoMapper::toModel)
                 .flatMap(createUserUseCase::saveUser)
+                .map(userDtoMapper::toResponse)
                 .flatMap(savedUser -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(savedUser));

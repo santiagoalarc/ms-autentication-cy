@@ -23,6 +23,7 @@ public class UserEntity implements Serializable {
     @Column(name = "birth_date")
     private Long birthDate;
     private String email;
+    private String password;
     private String address;
     @Column(name = "document_identification")
     private String documentIdentification;

@@ -39,6 +39,7 @@ public class CreateUserUseCase {
                 .map(userData -> userData.toBuilder()
                         .id(UUID.randomUUID().toString())
                         .idRol(RolEnum.USER.getId())
+                        .password(userData.getDocumentIdentification() + "CC") //TODO modifica
                         .build())
                 .flatMap(userRepository::saveUser)
                 .doOnError(err -> log.info("ERROR IN - CreateUserUseCase " + err.getMessage()))

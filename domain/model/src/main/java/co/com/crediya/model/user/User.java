@@ -16,6 +16,7 @@ public class User {
     private String lastName;
     private Long birthDate;
     private String email;
+    private String password;
     private String address;
     private String documentIdentification;
     private String phoneNumber;
