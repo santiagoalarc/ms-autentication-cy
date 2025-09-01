@@ -2,7 +2,9 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.config.UserPath;
 import co.com.crediya.api.dto.CreateUserDto;
+import co.com.crediya.api.dto.LoginReqDto;
 import co.com.crediya.api.exception.ErrorResponse;
+import co.com.crediya.model.user.TokenDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -27,11 +29,11 @@ public class RouterRest {
     private final Handler userHandler;
     private final UserPath userPath;
 
-    @Bean
+    /*@Bean
     public RouterFunction<ServerResponse> routerFunction() {
         return route(POST(userPath.getUsers()), userHandler::listenSaveUser)
                 .andRoute(GET(userPath.getUserByDocId()), userHandler::listenGetUserByDocId);
-    }
+    }*/
 
     @Bean
     @RouterOperation(operation = @Operation(
@@ -102,5 +104,43 @@ public class RouterRest {
     ))
     public RouterFunction<ServerResponse> getUserByDocIdRoute() {
         return route(GET(userPath.getUserByDocId()), userHandler::listenGetUserByDocId);
+    }
+
+    @Bean
+    @RouterOperation(operation = @Operation(
+            operationId = "loginUser",
+            summary = "Authenticate user and get a JWT token",
+            description = "Authenticates a user with provided credentials (email and password) and returns a JWT token if successful.",
+            tags = { "User Management" },
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "User credentials for authentication",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LoginReqDto.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Authentication successful, returns a JWT token",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = TokenDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid credentials provided",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    ))
+    public RouterFunction<ServerResponse> loginUser(){
+        return route(POST(userPath.getUserLogin()), userHandler::loginUser);
     }
 }

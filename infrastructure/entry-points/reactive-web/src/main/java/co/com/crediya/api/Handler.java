@@ -2,11 +2,18 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.config.BaseValidator;
 import co.com.crediya.api.dto.CreateUserDto;
+import co.com.crediya.api.dto.LoginReqDto;
+import co.com.crediya.api.mapper.LoginDtoMapper;
 import co.com.crediya.api.mapper.UserDtoMapper;
+import co.com.crediya.api.security.JwtProvider;
+import co.com.crediya.model.user.TokenDto;
 import co.com.crediya.usecase.command.createuser.CreateUserUseCase;
+import co.com.crediya.usecase.command.login.LoginCommandUseCase;
 import co.com.crediya.usecase.handler.UserHandlerUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -18,8 +25,12 @@ public class Handler {
 
     private final CreateUserUseCase createUserUseCase;
     private final UserHandlerUseCase userHandlerUseCase;
+    private final LoginCommandUseCase loginCommandUseCase;
     private final UserDtoMapper userDtoMapper;
+    private final LoginDtoMapper loginDtoMapper;
+    private final JwtProvider jwtProvider;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
 
         return serverRequest.bodyToMono(CreateUserDto.class)
@@ -29,9 +40,13 @@ public class Handler {
                 .map(userDtoMapper::toResponse)
                 .flatMap(savedUser -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(savedUser));
+                        .bodyValue(savedUser))
+                .onErrorResume(org.springframework.security.access.AccessDeniedException.class,
+                        ex -> ServerResponse.status(HttpStatus.FORBIDDEN)
+                                .bodyValue("Acceso denegado: Se requiere rol ADMIN para crear usuarios"));
     }
 
+    @PreAuthorize("hasAuthority('USER')")
     public Mono<ServerResponse> listenGetUserByDocId(ServerRequest serverRequest){
         String docId = serverRequest.pathVariable("docId");
 
@@ -40,6 +55,17 @@ public class Handler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(userFound));
 
+    }
+
+    public Mono<ServerResponse> loginUser(ServerRequest serverRequest){
+
+        return serverRequest.bodyToMono(LoginReqDto.class)
+                .map(loginDtoMapper::toModel)
+                .flatMap(loginCommandUseCase::loginUser)
+                .map(user -> new TokenDto(jwtProvider.generateToken(user)))
+                .flatMap(savedUser -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(savedUser));
     }
 
 

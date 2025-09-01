@@ -1,10 +1,12 @@
 package co.com.crediya.r2dbc;
 
+import co.com.crediya.model.user.LoginUser;
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.r2dbc.entity.UserEntity;
 import co.com.crediya.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
@@ -16,17 +18,23 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         String,
         UserReactiveRepository
 > implements UserRepository {
-    public UserReactiveRepositoryAdapter(UserReactiveRepository repository, ObjectMapper mapper, TransactionalOperator transactionalOperator) {
+    public UserReactiveRepositoryAdapter(UserReactiveRepository repository, ObjectMapper mapper,
+                                         TransactionalOperator transactionalOperator,
+                                         PasswordEncoder passwordEncoder) {
 
         super(repository, mapper, d -> mapper.map(d, User.class));
         this.transactionalOperator = transactionalOperator;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private final TransactionalOperator transactionalOperator;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Mono<User> saveUser(User user) {
-        return super.save(user).as(transactionalOperator::transactional);
+        return super.save(user.toBuilder()
+                        .password(passwordEncoder.encode(user.getPassword()))
+                .build()).as(transactionalOperator::transactional);
     }
 
     @Override
@@ -42,6 +50,13 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     @Override
     public Mono<User> findByDocumentIdentification(String documentIdentification) {
         return repository.findByDocumentIdentification(documentIdentification)
+                .map(this::toEntity);
+    }
+
+    @Override
+    public Mono<User> login(LoginUser loginUser) {
+        return repository.findByEmail(loginUser.getEmail())
+                .filter(userEntity -> passwordEncoder.matches(loginUser.getPassword(), userEntity.getPassword()))
                 .map(this::toEntity);
     }
 }

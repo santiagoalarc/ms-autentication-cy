@@ -35,6 +35,7 @@ routes:
     users: "/api/v1/usuarios"
     userById: "/api/v1/usuario/{id}"
     userByDocId: "/api/v1/usuario/{docId}"
+    userLogin: "/api/v1/login"
 
 adapters:
   r2dbc:
@@ -44,22 +45,3 @@ adapters:
     schema: "public"
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    operationsSorter: method
-  info:
-    title: "MS Authentication API"
-    description: "Microservicio de autenticación y gestión de usuarios"
-    version: "1.0.0"
-    contact:
-      name: "Crediya Team"
-      email: "team@crediya.com"
-  servers:
-    - url: http://localhost:8080
-      description: Local development server

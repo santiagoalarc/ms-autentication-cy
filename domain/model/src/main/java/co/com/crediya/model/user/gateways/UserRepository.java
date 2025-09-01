@@ -1,6 +1,7 @@
 package co.com.crediya.model.user.gateways;
 
 
+import co.com.crediya.model.user.LoginUser;
 import co.com.crediya.model.user.User;
 import reactor.core.publisher.Mono;
 
@@ -13,4 +14,6 @@ public interface UserRepository {
     Mono<Boolean> existsByDocumentId(User user);
 
     Mono<User> findByDocumentIdentification(String documentIdentification);
+
+    Mono<User> login(LoginUser loginUser);
 }
