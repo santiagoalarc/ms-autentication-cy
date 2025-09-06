@@ -7,12 +7,18 @@ import co.com.crediya.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.util.logging.Logger;
+
 @RequiredArgsConstructor
 public class UserHandlerUseCase {
 
     private final UserRepository userRepository;
 
-    public Mono<User> findByDocumentIdentification(String documentIdentification){
+    private final Logger log = Logger.getLogger(UserHandlerUseCase.class.getName());
+
+    public Mono<User> findByDocumentIdentification(String documentIdentification) {
+
+        log.info("ENTER TO findByDocumentIdentification :: " + documentIdentification);
 
         return userRepository.findByDocumentIdentification(documentIdentification)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new UserException(UserErrorEnum.DOCUMENT_IDENTIFICATION_NOT_FOUND))));

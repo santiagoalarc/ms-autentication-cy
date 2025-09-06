@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:80}
+  port: ${PORT:8080}
 spring:
   application:
     name: "MSAuthentication"
@@ -7,10 +7,10 @@ spring:
     add-properties: false
   profiles:
     include: null
-  #r2dbc:
-  #  schema:
-  #    create-mode: "always"
-  #    locations: "classpath:schema.sql"
+  r2dbc:
+    schema:
+      create-mode: "always"
+      locations: "classpath:schema.sql"
   sql:
     init:
       mode: "always"
@@ -41,7 +41,7 @@ routes:
 adapters:
   r2dbc:
     host: ${SPRING_DATASOURCE_HOST}
-    port: 5432
+    port: ${SPRING_DATASOURCE_PORT}
     database: ${SPRING_DATASOURCE_DATABASE}
     schema: "public"
     username: ${SPRING_DATASOURCE_USERNAME}

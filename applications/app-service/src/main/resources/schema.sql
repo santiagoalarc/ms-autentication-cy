@@ -12,11 +12,12 @@ CREATE TABLE IF NOT EXISTS user_entity (
     name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255),
     birth_date BIGINT,
-    email VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
     password VARCHAR(255),
     address VARCHAR(255),
-    document_identification VARCHAR(255),
+    document_identification VARCHAR(255) UNIQUE,
     phone_number VARCHAR(255),
     id_rol INTEGER,
-    base_salary VARCHAR(255)
+    base_salary VARCHAR(255),
+    FOREIGN KEY (id_rol) REFERENCES rol(id)
 );

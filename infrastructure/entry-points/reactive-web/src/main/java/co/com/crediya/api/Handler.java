@@ -53,6 +53,7 @@ public class Handler {
         String docId = serverRequest.pathVariable("docId");
 
         return userHandlerUseCase.findByDocumentIdentification(docId)
+                .map(userDtoMapper::toUserInfoDTO)
                 .flatMap(userFound -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(userFound));

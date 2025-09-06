@@ -42,7 +42,8 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<ErrorResponse>> handleGenericException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Ha ocurrido un error interno del servidor."
+                "Ha ocurrido un error interno del servidor.",
+                ex.getMessage()
         );
         return Mono.just(new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR));
     }
