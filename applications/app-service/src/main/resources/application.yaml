@@ -36,6 +36,7 @@ routes:
     userById: "/api/v1/usuario/{id}"
     userByDocId: "/api/v1/usuario/{docId}"
     userLogin: "/api/v1/login"
+    usersByEmail: "/api/v1/usuarios-by-email"
 
 adapters:
   r2dbc:

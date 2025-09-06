@@ -5,7 +5,8 @@ import java.util.Arrays;
 public enum RolEnum {
 
     ADMIN(0),
-        USER(1);
+        USER(1),
+    ASESOR(2);
 
     private final int id;
 

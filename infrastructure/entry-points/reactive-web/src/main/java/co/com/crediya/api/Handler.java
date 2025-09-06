@@ -10,6 +10,7 @@ import co.com.crediya.model.user.TokenDto;
 import co.com.crediya.usecase.command.createuser.CreateUserUseCase;
 import co.com.crediya.usecase.command.login.LoginCommandUseCase;
 import co.com.crediya.usecase.handler.UserHandlerUseCase;
+import co.com.crediya.usecase.handler.UsersInfoHandlerUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ public class Handler {
     private final CreateUserUseCase createUserUseCase;
     private final UserHandlerUseCase userHandlerUseCase;
     private final LoginCommandUseCase loginCommandUseCase;
+    private final UsersInfoHandlerUseCase usersInfoHandlerUseCase;
     private final UserDtoMapper userDtoMapper;
     private final LoginDtoMapper loginDtoMapper;
     private final JwtProvider jwtProvider;
@@ -66,6 +68,18 @@ public class Handler {
                 .flatMap(savedUser -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(savedUser));
+    }
+
+    @PreAuthorize("hasAuthority('ASESOR')")
+    public Mono<ServerResponse> getUserByEmail(ServerRequest serverRequest){
+        String emails = serverRequest.queryParam("emails").orElse("");
+
+        return usersInfoHandlerUseCase.execute(emails)
+                .map(userDtoMapper::toUserInfoDTO)
+                .collectList()
+                .flatMap(usersFound -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(usersFound));
     }
 
 

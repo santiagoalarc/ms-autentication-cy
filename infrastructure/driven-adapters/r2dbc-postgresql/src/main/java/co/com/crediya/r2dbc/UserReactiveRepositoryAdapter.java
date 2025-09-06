@@ -9,7 +9,10 @@ import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Repository
 public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
@@ -57,6 +60,12 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<User> login(LoginUser loginUser) {
         return repository.findByEmail(loginUser.getEmail())
                 .filter(userEntity -> passwordEncoder.matches(loginUser.getPassword(), userEntity.getPassword()))
+                .map(this::toEntity);
+    }
+
+    @Override
+    public Flux<User> findAllByEmailIn(List<String> emails) {
+        return repository.findAllByEmailIn(emails)
                 .map(this::toEntity);
     }
 }

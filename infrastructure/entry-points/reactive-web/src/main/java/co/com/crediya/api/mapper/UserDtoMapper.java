@@ -1,6 +1,7 @@
 package co.com.crediya.api.mapper;
 
 import co.com.crediya.api.dto.CreateUserDto;
+import co.com.crediya.api.dto.UserInfoDto;
 import co.com.crediya.api.dto.UserResponseDto;
 import co.com.crediya.model.user.User;
 import org.mapstruct.Mapper;
@@ -11,4 +12,6 @@ public interface UserDtoMapper {
 
     User toModel(CreateUserDto createUserDto);
     UserResponseDto toResponse(User user);
+
+    UserInfoDto toUserInfoDTO(User user);
 }

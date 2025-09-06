@@ -3,6 +3,7 @@ package co.com.crediya.api;
 import co.com.crediya.api.config.UserPath;
 import co.com.crediya.api.dto.CreateUserDto;
 import co.com.crediya.api.dto.LoginReqDto;
+import co.com.crediya.api.dto.UserInfoDto;
 import co.com.crediya.api.exception.ErrorResponse;
 import co.com.crediya.model.user.TokenDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,12 +29,6 @@ public class RouterRest {
 
     private final Handler userHandler;
     private final UserPath userPath;
-
-    /*@Bean
-    public RouterFunction<ServerResponse> routerFunction() {
-        return route(POST(userPath.getUsers()), userHandler::listenSaveUser)
-                .andRoute(GET(userPath.getUserByDocId()), userHandler::listenGetUserByDocId);
-    }*/
 
     @Bean
     @RouterOperation(operation = @Operation(
@@ -142,5 +137,64 @@ public class RouterRest {
     ))
     public RouterFunction<ServerResponse> loginUser(){
         return route(POST(userPath.getUserLogin()), userHandler::loginUser);
+    }
+
+    @Bean
+    @RouterOperation(operation = @Operation(
+            operationId = "getUsersByEmail",
+            summary = "Get users by email addresses",
+            description = "Retrieves multiple users by providing a comma-separated list of email addresses. Requires ADMIN role.",
+            tags = { "User Management" },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.QUERY,
+                            name = "emails",
+                            description = "Comma-separated list of email addresses to search for users",
+                            required = true,
+                            schema = @Schema(type = "string"),
+                            example = "user1@example.com,user2@example.com,user3@example.com"
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Users found successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            type = "array",
+                                            implementation = UserInfoDto.class
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid email format or missing emails parameter",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Access denied - ADMIN role required",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "No users found with the provided email addresses"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error"
+                    )
+            },
+            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
+    ))
+    public RouterFunction<ServerResponse> getUsersInfo(){
+        return route(GET(userPath.getUsersByEmail()), userHandler::getUserByEmail);
     }
 }

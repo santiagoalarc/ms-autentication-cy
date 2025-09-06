@@ -13,4 +13,5 @@ public class UserPath {
     private String userById;
     private String userByDocId;
     private String userLogin;
+    private String usersByEmail;
 }
