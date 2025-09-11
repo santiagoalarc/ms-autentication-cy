@@ -71,7 +71,7 @@ public class Handler {
                         .bodyValue(savedUser));
     }
 
-    @PreAuthorize("hasAuthority('ASESOR')")
+    @PreAuthorize("hasAnyAuthority('ASESOR', 'USER')")
     public Mono<ServerResponse> getUserByEmail(ServerRequest serverRequest){
         String emails = serverRequest.queryParam("emails").orElse("");
 
