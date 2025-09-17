@@ -21,7 +21,8 @@ public class JwtFilter implements WebFilter {
                 path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/api-docs") ||
-                path.startsWith("/api/v1/login")
+                path.startsWith("/api/v1/login") ||
+                path.startsWith("/health")
         ) {
             return chain.filter(exchange);
         }

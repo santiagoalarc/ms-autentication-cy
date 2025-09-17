@@ -197,4 +197,9 @@ public class RouterRest {
     public RouterFunction<ServerResponse> getUsersInfo(){
         return route(GET(userPath.getUsersByEmail()), userHandler::getUserByEmail);
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> healthCheck(){
+        return route(GET("/health"), userHandler::healthCheck);
+    }
 }

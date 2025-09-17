@@ -83,5 +83,9 @@ public class Handler {
                         .bodyValue(usersFound));
     }
 
+    public Mono<ServerResponse> healthCheck(ServerRequest serverRequest){
+        return ServerResponse.ok().bodyValue("ok");
+    }
+
 
 }
